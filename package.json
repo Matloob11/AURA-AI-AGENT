@@ -1,0 +1,49 @@
+{
+    "name": "aura-ai-assistant",
+    "version": "1.0.0",
+    "description": "Advanced Desktop AI Assistant with Voice, Vision & Automation",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "electron .",
+        "dev": "electron . --dev",
+        "build": "electron-builder",
+        "python-server": "cd python-backend && python main.py"
+    },
+    "keywords": [
+        "ai",
+        "assistant",
+        "electron",
+        "voice",
+        "automation"
+    ],
+    "author": "Your Name",
+    "license": "MIT",
+    "devDependencies": {
+        "electron": "^28.3.3",
+        "electron-builder": "^24.9.1"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^7.1.0",
+        "animate.css": "^4.1.1",
+        "axios": "^1.13.2",
+        "dotenv": "^16.6.1",
+        "lucide-react": "^0.555.0",
+        "particles.js": "^2.0.0",
+        "socket.io-client": "^4.8.1"
+    },
+    "build": {
+        "appId": "com.aura.assistant",
+        "productName": "AURA AI",
+        "directories": {
+            "output": "dist"
+        },
+        "files": [
+            "src/**/*",
+            "python-backend/**/*"
+        ],
+        "win": {
+            "target": "nsis",
+            "icon": "assets/icon.ico"
+        }
+    }
+}

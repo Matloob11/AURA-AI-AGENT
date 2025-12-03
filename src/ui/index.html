@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA AI - Advanced Assistant</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="../../node_modules/animate.css/animate.min.css">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-enhanced.css">
+</head>
+
+<body>
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop" title="Scroll to Top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <div class="container">
+        <!-- Title Bar -->
+        <div class="titlebar">
+            <div class="titlebar-drag">
+                <i class="fas fa-bolt title-icon"></i>
+                <span class="app-title">AURA AI</span>
+                <span class="version-badge">v2.0</span>
+                <span id="connection-status" class="connection-status">
+                    <i class="fas fa-circle"></i>
+                </span>
+            </div>
+            <div class="window-controls">
+                <button id="minimize-btn" class="window-btn" title="Minimize">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button id="maximize-btn" class="window-btn" title="Maximize">
+                    <i class="fas fa-square"></i>
+                </button>
+                <button id="close-btn" class="window-btn close" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Left Panel: Real-time Logs -->
+            <div class="left-panel animate__animated animate__fadeInLeft">
+                <div class="panel-header">
+                    <i class="fas fa-terminal panel-icon"></i>
+                    <span class="panel-title">System Logs</span>
+                    <button class="panel-action" title="Clear Logs">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <div id="system-logs" class="logs-container"></div>
+            </div>
+
+            <!-- Center: Animated Circular UI -->
+            <div class="center-panel">
+                <!-- Circular Animation -->
+                <div class="aura-circle animate__animated animate__zoomIn">
+                    <div class="circle-outer"></div>
+                    <div class="circle-middle"></div>
+                    <div class="circle-inner"></div>
+                    <div class="circle-core">
+                        <i class="fas fa-bolt aura-icon"></i>
+                        <div class="aura-text">AURA</div>
+                        <div id="aura-status" class="aura-status">
+                            <i class="fas fa-circle-notch fa-spin status-spinner"></i>
+                            Ready
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="control-grid">
+                    <button id="voice-btn" class="control-btn" title="Voice Command">
+                        <div class="btn-icon-wrapper">
+                            <i class="fas fa-microphone btn-icon"></i>
+                        </div>
+                        <span class="btn-label">Voice</span>
+                        <span class="btn-status">Ready</span>
+                    </button>
+                    <button id="vision-btn" class="control-btn" title="Vision Analysis">
+                        <div class="btn-icon-wrapper">
+                            <i class="fas fa-eye btn-icon"></i>
+                        </div>
+                        <span class="btn-label">Vision</span>
+                        <span class="btn-status">Ready</span>
+                    </button>
+                    <button id="automation-btn" class="control-btn" title="Automation">
+                        <div class="btn-icon-wrapper">
+                            <i class="fas fa-cogs btn-icon"></i>
+                        </div>
+                        <span class="btn-label">Auto</span>
+                        <span class="btn-status">Ready</span>
+                    </button>
+                    <button id="wakeword-btn" class="control-btn" title="Wake Word Mode">
+                        <div class="btn-icon-wrapper">
+                            <i class="fas fa-volume-up btn-icon"></i>
+                        </div>
+                        <span class="btn-label">Wake</span>
+                        <span class="btn-status">Ready</span>
+                    </button>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <i class="fas fa-comment-dots input-icon"></i>
+                        <input type="text" id="user-input" placeholder="Type your message or command..."
+                            autocomplete="off" />
+                        <button class="input-action" title="Voice Input">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <button id="send-btn" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send</span>
+                    </button>
+                </div>
+
+                <!-- Response Display -->
+                <div id="response-display" class="response-display"></div>
+            </div>
+
+            <!-- Right Panel: Task History & System Info -->
+            <div class="right-panel animate__animated animate__fadeInRight">
+                <div class="panel-header">
+                    <i class="fas fa-chart-line panel-icon"></i>
+                    <span class="panel-title">System Info</span>
+                    <button class="panel-action" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="system-info">
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-brain"></i> AI Engine
+                        </span>
+                        <span id="ai-status" class="info-value">
+                            <i class="fas fa-circle"></i> Ready
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-microphone-alt"></i> Voice
+                        </span>
+                        <span id="voice-status-info" class="info-value">
+                            <i class="fas fa-circle"></i> Ready
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-eye"></i> Vision
+                        </span>
+                        <span id="vision-status-info" class="info-value">
+                            <i class="fas fa-circle"></i> Ready
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-robot"></i> Automation
+                        </span>
+                        <span id="automation-status-info" class="info-value">
+                            <i class="fas fa-circle"></i> Ready
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-desktop"></i> Screen
+                        </span>
+                        <span id="screen-size" class="info-value">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fas fa-mouse-pointer"></i> Mouse
+                        </span>
+                        <span id="mouse-pos" class="info-value">-</span>
+                    </div>
+                </div>
+
+                <div class="panel-header" style="margin-top: 20px;">
+                    <i class="fas fa-history panel-icon"></i>
+                    <span class="panel-title">Task History</span>
+                    <button class="panel-action" title="Clear History">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <div id="task-history" class="task-history"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Particles.js -->
+    <script src="../../node_modules/particles.js/particles.js"></script>
+
+    <!-- Main App -->
+    <script src="app.js"></script>
+
+    <!-- Initialize Particles -->
+    <script>
+        particlesJS.load('particles-js', 'particles-config.json', function () {
+            console.log('Particles.js loaded');
+        });
+    </script>
+</body>
+
+</html>

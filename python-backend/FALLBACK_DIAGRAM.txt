@@ -1,0 +1,214 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    AURA AI - Multi-Provider Fallback System                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              USER SENDS MESSAGE                              │
+│                          "Hello, what can you do?"                           │
+└────────────────────────────────┬────────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         AI ENGINE (ai_engine.py)                             │
+│                                                                              │
+│  1. Add message to conversation history                                     │
+│  2. Check available providers: [openai, cohere, gemini]                     │
+│  3. Try providers in order until one succeeds                               │
+└────────────────────────────────┬────────────────────────────────────────────┘
+                                 │
+                                 ▼
+                    ┌────────────────────────┐
+                    │   TRY PROVIDER #1:     │
+                    │       OPENAI           │
+                    └────────┬───────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  Call OpenAI    │
+                    │  GPT-4 API      │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   ❌ FAILED     │
+                    │ Rate Limit Hit  │
+                    └────────┬────────┘
+                             │
+                             │ Log error & try next
+                             ▼
+                    ┌────────────────────────┐
+                    │   TRY PROVIDER #2:     │
+                    │      COHERE            │
+                    └────────┬───────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  Call Cohere    │
+                    │  Command API    │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   ✅ SUCCESS    │
+                    │ Response: "I'm  │
+                    │ AURA, your AI..." │
+                    └────────┬────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          TRACK STATISTICS                                    │
+│                                                                              │
+│  • cohere.calls += 1                                                        │
+│  • cohere.total_time += 1.45s                                               │
+│  • last_provider_used = "cohere"                                            │
+│  • Add AI response to conversation history                                  │
+└────────────────────────────────┬────────────────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         RETURN RESPONSE TO USER                              │
+│                                                                              │
+│  • Via REST API: /chat endpoint                                             │
+│  • Via Socket.IO: 'ai_response' event                                       │
+│  • Log: "✓ COHERE responded successfully in 1.45s"                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         PROVIDER PRIORITY ORDER                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+    1st Priority          2nd Priority         3rd Priority
+    ┌──────────┐         ┌──────────┐         ┌──────────┐
+    │  OpenAI  │  ──→    │ Hugging  │  ──→    │  Cohere  │
+    │  GPT-4   │         │   Face   │         │ Command  │
+    └──────────┘         └──────────┘         └──────────┘
+         │                                           │
+         │                                           │
+         └───────────────────┬───────────────────────┘
+                             │
+                             ▼
+                    4th Priority         5th Priority
+                    ┌──────────┐         ┌──────────┐
+                    │  Gemini  │  ──→    │ Deepseek │
+                    │   Pro    │         │   Chat   │
+                    └──────────┘         └──────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           ERROR HANDLING FLOW                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────┐
+│ Provider Fails  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────────────────────────┐
+│ What type of error?                 │
+└────┬────────────────────────────────┘
+     │
+     ├─→ Network Error ──→ Try next provider
+     │
+     ├─→ Invalid API Key ──→ Try next provider
+     │
+     ├─→ Rate Limit ──→ Try next provider
+     │
+     ├─→ Timeout ──→ Try next provider
+     │
+     └─→ All Providers Failed ──→ Return error message
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        CONVERSATION HISTORY FLOW                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         CONVERSATION HISTORY                                 │
+│                         (Max 20 messages)                                    │
+│                                                                              │
+│  [1] User: "My name is Alice"                                               │
+│  [2] AI: "Nice to meet you, Alice!"                                         │
+│  [3] User: "What's the weather?"                                            │
+│  [4] AI: "I don't have real-time weather data..."                           │
+│  ...                                                                         │
+│  [19] User: "What's my name?"                                               │
+│  [20] AI: "Your name is Alice!"  ← Remembers from message [1]              │
+│                                                                              │
+│  New message arrives → Oldest message removed if > 20                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          PROVIDER STATISTICS                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  Provider: OpenAI                                                            │
+│  ├─ Calls: 15                                                                │
+│  ├─ Errors: 2                                                                │
+│  ├─ Avg Response Time: 1.23s                                                 │
+│  └─ Success Rate: 86.7%                                                      │
+│                                                                              │
+│  Provider: Cohere                                                            │
+│  ├─ Calls: 8                                                                 │
+│  ├─ Errors: 0                                                                │
+│  ├─ Avg Response Time: 1.45s                                                 │
+│  └─ Success Rate: 100.0%                                                     │
+│                                                                              │
+│  Provider: Gemini                                                            │
+│  ├─ Calls: 3                                                                 │
+│  ├─ Errors: 1                                                                │
+│  ├─ Avg Response Time: 2.10s                                                 │
+│  └─ Success Rate: 66.7%                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            API ENDPOINTS                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+POST /chat
+├─ Input: {"message": "Hello!"}
+├─ Process: Universal chat() with fallback
+└─ Output: {"response": "Hi there!", "status": "success"}
+
+GET /ai/config
+├─ Returns: Configuration + Provider Status
+└─ Output: {
+    "available_providers": ["openai", "cohere"],
+    "last_provider_used": "cohere",
+    "provider_stats": {...}
+  }
+
+POST /ai/clear-history
+├─ Clears conversation history
+└─ Output: {"status": "success"}
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         CONFIGURATION (.env)                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│  # API Keys (at least one required)                                          │
+│  OPENAI_API_KEY=sk-...                                                       │
+│  HF_API_KEY=hf_...                                                           │
+│  COHERE_API_KEY=...                                                          │
+│  GEMINI_API_KEY=...                                                          │
+│  DEEPSEEK_API_KEY=...                                                        │
+│                                                                              │
+│  # AI Configuration                                                          │
+│  AI_MODEL=gpt-4                    # Model to use (primarily for OpenAI)    │
+│  AI_TEMPERATURE=0.7                # Response randomness (0.0 - 2.0)        │
+│  AI_MAX_TOKENS=500                 # Maximum response length                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              BENEFITS                                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✅ RELIABILITY      → Service continues even if primary provider fails
+✅ COST OPTIMIZATION → Mix free (HF, Gemini) and paid (OpenAI) providers
+✅ PERFORMANCE      → System tracks and uses fastest available provider
+✅ FLEXIBILITY      → Easy to add/remove providers via .env
+✅ MONITORING       → Track success rates and response times
+✅ NO DOWNTIME      → Automatic failover ensures continuous service
+
